@@ -1,0 +1,2330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OquWay Educational App</title>
+    <!-- Tailwind CSS CDN for basic utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom styles for OquWay App */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #a7e6f8, #f8d3a7); /* Soft gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90vw; /* Responsive width */
+            max-width: 800px; /* Max width for larger screens */
+            padding: 2.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh; /* Minimum height to occupy a good portion of the screen */
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #8e44ad; /* Purple border for a playful touch */
+        }
+
+        h1, h2 {
+            color: #8e44ad; /* Purple heading */
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default, managed by JS */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Language Switcher with Flags */
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        .language-switcher img {
+            width: 40px; /* Adjust flag size as needed */
+            height: 30px;
+            border: 2px solid #8e44ad;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+        }
+        .language-switcher img:hover {
+            transform: scale(1.1);
+            border-color: #6c3483;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .language-switcher img.selected {
+            border-color: #2ecc71; /* Highlight selected flag */
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+
+
+        /* Login Screen Styles */
+        .class-selection, .student-photo-selection {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .class-item, .student-photo-item {
+            width: 100px;
+            height: 100px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            font-size: 3rem; /* Large icon size for class items */
+            color: #3498db; /* Blue for class icons */
+            padding: 0.5rem;
+            position: relative; /* For the selected tick */
+        }
+        /* Style for image within student photo items */
+        .student-photo-item img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 50%; /* Make them round */
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+
+        .class-item.selected, .student-photo-item.selected {
+            border-color: #2ecc71; /* Green selected border */
+            background-color: #e6f7ed;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+        }
+        .class-item:hover, .student-photo-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .student-photo-item.selected img {
+             border-color: #2ecc71; /* Green border on selected photo */
+        }
+
+        .class-item span {
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .emoji-password-input {
+            width: 80%;
+            max-width: 300px;
+            padding: 0.75rem 1rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            letter-spacing: 0.5rem; /* Space out emojis */
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+        }
+        .emoji-password-input:focus {
+            border-color: #8e44ad;
+        }
+
+        /* Fruit Grid Styles */
+        .fruit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns */
+            gap: 10px;
+            margin-bottom: 2rem;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .fruit-button {
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 2.5rem; /* Large emoji size */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70px; /* Fixed height for consistent grid */
+        }
+        .fruit-button:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+        .fruit-button:active {
+            transform: translateY(0);
+            background-color: #d0d0d0;
+        }
+
+
+        .login-btn {
+            background-color: #2ecc71; /* Green login button */
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        .login-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+        }
+
+        /* Dashboard Screen Styles */
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: #f7f7f7;
+            padding: 1.5rem 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #dashboard-avatar, #store-avatar {
+            width: 100px; /* Fixed width for consistency */
+            height: 100px; /* Fixed height */
+            object-fit: cover; /* Ensure image covers the area without distortion */
+            border-radius: 50%; /* Make it round */
+            border: 4px solid #8e44ad;
+            padding: 0.25rem;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #student-name, #store-student-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #34495e; /* Darker blue for name */
+        }
+
+        .intention-points {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .point-type {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            min-width: 120px;
+            transition: transform 0.2s ease;
+        }
+        .point-type:hover {
+            transform: translateY(-3px);
+        }
+
+        .point-type .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .point-type .label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .point-type .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        /* Specific point colors */
+        .point-physical .icon, .point-physical .value { color: #2ecc71; } /* Green */
+        .point-cognitive .icon, .point-cognitive .value { color: #3498db; } /* Blue */
+        .point-creative .icon, .point-creative .value { color: #e67e22; } /* Orange */
+        .point-social .icon, .point-social .value { color: #8e44ad; } /* Purple */
+
+        .dashboard-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .dashboard-btn {
+            background-color: #3498db; /* Blue */
+            color: white;
+            padding: 0.9rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .dashboard-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+        .dashboard-btn.activity { background-color: #2ecc71; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
+        .dashboard-btn.activity:hover { background-color: #27ae60; }
+        .dashboard-btn.log-physical { background-color: #f1c40f; color: #333; box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3); } /* Yellow */
+        .dashboard-btn.log-physical:hover { background-color: #f39c12; }
+        .dashboard-btn.learning-activities { background-color: #8e44ad; box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3); }
+        .dashboard-btn.learning-activities:hover { background-color: #6c3483; }
+
+        /* Store Screen Styles */
+        .store-items, .activity-items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+            gap: 1.5rem;
+            width: 100%;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            justify-content: center;
+        }
+
+        .store-item, .activity-card {
+            background-color: #f8f8f8;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        .store-item:hover, .activity-card:hover {
+            transform: translateY(-5px);
+            border-color: #8e44ad;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .item-icon, .subject-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-name, .activity-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 0.75rem;
+        }
+
+        .activity-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1.2rem;
+            height: 3em; /* Fixed height for consistent card size */
+            overflow: hidden; /* Hide overflow if description is too long */
+            text-overflow: ellipsis; /* Add ellipsis for overflow */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+
+        .item-cost {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap; /* Allow wrapping for costs */
+            justify-content: center;
+        }
+
+        .cost-point {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .cost-point .icon {
+            font-size: 1.5rem;
+        }
+
+        .buy-btn, .start-activity-btn, .check-code-btn {
+            background-color: #e67e22; /* Orange buy button */
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+        }
+        .buy-btn:hover:not(:disabled), .start-activity-btn:hover:not(:disabled), .check-code-btn:hover:not(:disabled) {
+            background-color: #d35400;
+            transform: translateY(-2px);
+        }
+        .buy-btn:disabled, .start-activity-btn:disabled, .check-code-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            background-color: #95a5a6; /* Gray back button */
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            box-shadow: 0 3px 10px rgba(149, 165, 166, 0.3);
+        }
+        .back-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        /* Math Puzzle Screen specific styles */
+        .math-puzzle-container,
+        .reading-time-container,
+        .creative-writing-container,
+        .science-experiment-container,
+        .memory-challenge-container,
+        .time-travel-quiz-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            padding: 2rem;
+            background-color: #f0f8ff; /* Light blue background for math */
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 500px;
+            border: 3px solid #3498db; /* Blue border */
+            text-align: left; /* Align text within activity containers */
+        }
+        .math-puzzle-container .math-pattern {
+            text-align: center;
+            width: 100%;
+        }
+
+        .math-puzzle-container p,
+        .reading-time-container p,
+        .creative-writing-container p,
+        .science-experiment-container p,
+        .memory-challenge-container p,
+        .time-travel-quiz-container p {
+            font-size: 1.2rem;
+            color: #555;
+            width: 100%; /* Ensure paragraphs take full width */
+        }
+
+        .math-pattern {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 1rem;
+        }
+
+        .code-input,
+        .writing-textarea,
+        .observation-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            letter-spacing: 0.1rem;
+            min-height: 100px; /* For text areas */
+            resize: vertical; /* Allow vertical resizing for text areas */
+        }
+        .code-input {
+             width: 150px; /* Specific width for code input */
+             font-size: 1.8rem;
+             letter-spacing: 0.2rem;
+        }
+
+        .code-input:focus,
+        .writing-textarea:focus,
+        .observation-textarea:focus {
+            border-color: #3498db;
+        }
+
+        /* Radio button styles for quiz/reading comprehension */
+        .quiz-options, .reading-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        .quiz-option, .reading-option {
+            background-color: #eaf6ff;
+            border: 2px solid #a7d9f7;
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+        .quiz-option:hover, .reading-option:hover {
+            background-color: #d1ecfd;
+            transform: translateY(-2px);
+        }
+        .quiz-option input[type="radio"], .reading-option input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.3); /* Make radio buttons larger */
+        }
+        .quiz-option.selected, .reading-option.selected {
+            background-color: #c9e6ff;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Message box styles */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            z-index: 1000;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+            display: none; /* Hidden by default */
+        }
+        .message-box.active {
+            display: block;
+        }
+
+        /* Random Words for Creative Writing */
+        .random-words {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e67e22; /* Orange color for creative elements */
+            margin-bottom: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Memory Challenge styles */
+        .fact-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            width: 100%;
+        }
+        .memory-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .memory-option-btn {
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .memory-option-btn:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+        .memory-option-btn.correct {
+            background-color: #d4edda; /* Light green */
+            border-color: #28a745; /* Darker green */
+        }
+        .memory-option-btn.incorrect {
+            background-color: #f8d7da; /* Light red */
+            border-color: #dc3545; /* Darker red */
+        }
+        .memory-option-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                min-height: 90vh;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            .class-item, .student-photo-item {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+            .student-photo-item img {
+                width: 70px;
+                height: 70px;
+            }
+            .emoji-password-input {
+                font-size: 1.2rem;
+                padding: 0.6rem 0.8rem;
+                width: 90%;
+            }
+            .login-btn, .dashboard-btn, .buy-btn, .back-btn, .start-activity-btn, .check-code-btn {
+                padding: 0.7rem 1.5rem;
+                font-size: 1rem;
+            }
+            #dashboard-avatar, #store-avatar {
+                width: 80px;
+                height: 80px;
+            }
+            #student-name, #store-student-name {
+                font-size: 1.5rem;
+            }
+            .point-type {
+                min-width: 100px;
+                padding: 0.8rem 1rem;
+            }
+            .point-type .icon {
+                font-size: 2rem;
+            }
+            .point-type .value {
+                font-size: 1.5rem;
+            }
+            .dashboard-buttons {
+                width: 100%;
+            }
+            .store-item, .activity-card {
+                padding: 1rem;
+            }
+            .item-icon, .subject-icon {
+                font-size: 3rem;
+            }
+            .item-name, .activity-title {
+                font-size: 1.1rem;
+            }
+            .cost-point {
+                font-size: 0.9rem;
+            }
+            .cost-point .icon {
+                font-size: 1.2rem;
+            }
+            .activity-description {
+                font-size: 0.85rem;
+                height: 3.2em; /* Adjusted height for smaller text */
+            }
+            .math-puzzle-container,
+            .reading-time-container,
+            .creative-writing-container,
+            .science-experiment-container,
+            .memory-challenge-container,
+            .time-travel-quiz-container {
+                padding: 1.5rem;
+                width: 90%;
+            }
+            .math-pattern {
+                font-size: 2rem;
+            }
+            .code-input {
+                font-size: 1.5rem;
+                width: 120px;
+            }
+            .reading-time-container p, .creative-writing-container p, .science-experiment-container p, .memory-challenge-container p, .time-travel-quiz-container p {
+                font-size: 1rem;
+            }
+            .writing-textarea, .observation-textarea {
+                font-size: 1rem;
+            }
+            .quiz-option, .reading-option {
+                font-size: 0.9rem;
+                padding: 0.6rem 1rem;
+            }
+            .random-words {
+                font-size: 1.1rem;
+            }
+            .fact-display {
+                font-size: 1.2rem;
+            }
+            .memory-option-btn {
+                font-size: 1rem;
+            }
+             .language-switcher {
+                top: 10px;
+                right: 10px;
+            }
+            .language-switcher img {
+                width: 30px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Language Switcher with Flags -->
+        <div class="language-switcher" id="languageSwitcher">
+            <img src="https://flagcdn.com/us.svg" alt="English Flag" data-lang="en" class="selected">
+            <img src="https://flagcdn.com/ru.svg" alt="Russian Flag" data-lang="ru">
+            <img src="https://flagcdn.com/kg.svg" alt="Kyrgyz Flag" data-lang="kg">
+        </div>
+
+        <!-- Message Box -->
+        <div id="messageBox" class="message-box"></div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen active">
+            <h1 class="text-4xl" data-i18n="welcomeTitle"></h1>
+            <h2 class="text-2xl mb-6" data-i18n="chooseClass"></h2>
+            <div class="class-selection" id="classSelection">
+                <div class="class-item" data-class="Horse">
+                    🐴
+                    <span data-i18n="horseClass"></span>
+                </div>
+                <div class="class-item" data-class="Falcon">
+                    🦅
+                    <span data-i18n="falconClass"></span>
+                </div>
+                <div class="class-item" data-class="Snow Leopard">
+                    🐆
+                    <span data-i18n="snowLeopardClass"></span>
+                </div>
+            </div>
+
+            <h2 class="text-2xl mb-6" data-i18n="pickPhoto"></h2>
+            <div class="student-photo-selection" id="studentPhotoSelection">
+                <p data-i18n="selectClassPrompt"></p>
+            </div>
+
+            <h2 class="text-2xl mb-6" data-i18n="enterPassword"></h2>
+            <input type="text" id="emojiPasswordInput" class="emoji-password-input" placeholder="" maxlength="4" readonly>
+            <div class="fruit-grid" id="fruitGrid">
+                <!-- Fruit buttons will be dynamically loaded here by JS -->
+            </div>
+            <button id="loginBtn" class="login-btn" data-i18n="loginBtn"></button>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboardScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="dashboardTitle"></h1>
+            <div class="student-info">
+                <img id="dashboard-avatar" src="" alt="Student Avatar">
+                <span id="student-name"></span>
+            </div>
+
+            <h2 class="text-2xl mb-6" data-i18n="intentionPointsTitle"></h2>
+            <div class="intention-points">
+                <div class="point-type point-physical">
+                    <span class="icon">💪</span>
+                    <span class="label" data-i18n="physicalPoints"></span>
+                    <span class="value" id="physicalPoints">0</span>
+                </div>
+                <div class="point-type point-cognitive">
+                    <span class="icon">🧠</span>
+                    <span class="label" data-i18n="cognitivePoints"></span>
+                    <span class="value" id="cognitivePoints">0</span>
+                </div>
+                <div class="point-type point-creative">
+                    <span class="icon">🎨</span>
+                    <span class="label" data-i18n="creativePoints"></span>
+                    <span class="value" id="creativePoints">0</span>
+                </div>
+                <div class="point-type point-social">
+                    <span class="icon">🤝</span>
+                    <span class="label" data-i18n="socialPoints"></span>
+                    <span class="value" id="socialPoints">0</span>
+                </div>
+            </div>
+
+            <div class="dashboard-buttons">
+                <button id="earnQuickPointsBtn" class="dashboard-btn activity" data-i18n="earnQuickPointsBtn"></button>
+                <button id="goToActivitiesBtn" class="dashboard-btn learning-activities" data-i18n="goToActivitiesBtn"></button>
+                <button id="logPhysicalActivityBtn" class="dashboard-btn log-physical" data-i18n="logPhysicalActivityBtn"></button>
+                <button id="visitStoreBtn" class="dashboard-btn" data-i18n="visitStoreBtn"></button>
+            </div>
+        </div>
+
+        <!-- Intention Store Page -->
+        <div id="storeScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="storeTitle"></h1>
+            <div class="student-info mb-6">
+                <img id="store-avatar" src="" alt="Student Avatar">
+                <span id="store-student-name"></span>
+                <div class="intention-points-small ml-4">
+                    <div class="point-type point-physical">
+                        <span class="icon">💪</span>
+                        <span class="value" id="storePhysicalPoints">0</span>
+                    </div>
+                    <div class="point-type point-cognitive">
+                        <span class="icon">🧠</span>
+                        <span class="value" id="storeCognitivePoints">0</span>
+                    </div>
+                    <div class="point-type point-creative">
+                        <span class="icon">🎨</span>
+                        <span class="value" id="storeCreativePoints">0</span>
+                    </div>
+                    <div class="point-type point-social">
+                        <span class="icon">🤝</span>
+                        <span class="value" id="storeSocialPoints">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="store-items" id="storeItemsContainer">
+                <!-- Items will be dynamically loaded here by JS -->
+            </div>
+            <button id="backToDashboardBtn" class="back-btn" data-i18n="backToDashboardBtn"></button>
+        </div>
+
+        <!-- Activity Screen -->
+        <div id="activityScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="activitiesTitle"></h1>
+            <div class="activity-items-container" id="activityItemsContainer">
+                <!-- Activities will be dynamically loaded here by JS -->
+            </div>
+            <button id="backFromActivitiesBtn" class="back-btn" data-i18n="backToDashboardBtn"></button>
+        </div>
+
+        <!-- Math Puzzle Screen -->
+        <div id="mathPuzzleScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="mathPuzzleTitle"></h1>
+            <div class="math-puzzle-container">
+                <p data-i18n="mathPuzzlePrompt"></p>
+                <div class="math-pattern">10, 20, 30, _ _ _</div>
+                <label for="mathCodeInput" class="text-xl font-semibold mt-4" data-i18n="enterCodePrompt"></label>
+                <input type="number" id="mathCodeInput" class="code-input" placeholder="" maxlength="3">
+                <button id="checkMathCodeBtn" class="check-code-btn mt-4" data-i18n="checkCodeBtn"></button>
+            </div>
+            <button id="backFromMathPuzzleBtn" class="back-btn mt-8" data-i18n="backToActivitiesBtn"></button>
+        </div>
+
+        <!-- Reading Time Screen -->
+        <div id="readingTimeScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="readingTimeTitle"></h1>
+            <div class="reading-time-container">
+                <p class="text-lg font-bold mb-4" data-i18n="squeakyStoryTitle"></p>
+                <p class="mb-6" data-i18n="squeakyStoryContent"></p>
+                <p class="font-semibold mb-4" data-i18n="squeakyQuestion"></p>
+                <div class="reading-options" id="readingOptions">
+                    <label class="reading-option">
+                        <input type="radio" name="readingAnswer" value="apples"> <span data-i18n="applesOption"></span>
+                    </label>
+                    <label class="reading-option">
+                        <input type="radio" name="readingAnswer" value="nuts"> <span data-i18n="nutsOption"></span>
+                    </label>
+                    <label class="reading-option">
+                        <input type="radio" name="readingAnswer" value="playing"> <span data-i18n="playingOption"></span>
+                    </label>
+                </div>
+                <button id="checkReadingAnswerBtn" class="check-code-btn mt-4" data-i18n="checkAnswerBtn"></button>
+            </div>
+            <button id="backFromReadingTimeBtn" class="back-btn mt-8" data-i18n="backToActivitiesBtn"></button>
+        </div>
+
+        <!-- Creative Writing Screen -->
+        <div id="creativeWritingScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="creativeWritingTitle"></h1>
+            <div class="creative-writing-container">
+                <p class="mb-4" data-i18n="creativeWritingPrompt"></p>
+                <p class="random-words" id="randomWordsDisplay"></p>
+                <textarea id="creativeWritingTextarea" class="writing-textarea" placeholder=""></textarea>
+                <button id="finishWritingBtn" class="check-code-btn mt-4" data-i18n="finishWritingBtn"></button>
+            </div>
+            <button id="backFromCreativeWritingBtn" class="back-btn mt-8" data-i18n="backToActivitiesBtn"></button>
+        </div>
+
+        <!-- Science Experiment Screen -->
+        <div id="scienceExperimentScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="scienceExperimentTitle"></h1>
+            <div class="science-experiment-container">
+                <p class="mb-4 font-bold" data-i18n="scienceExperimentName"></p>
+                <p class="mb-6" data-i18n="scienceExperimentDesc"></p>
+                <label for="observationTextarea" class="text-xl font-semibold mt-4" data-i18n="yourObservation"></label>
+                <textarea id="observationTextarea" class="observation-textarea" placeholder=""></textarea>
+                <button id="submitObservationBtn" class="check-code-btn mt-4" data-i18n="submitObservationBtn"></button>
+            </div>
+            <button id="backFromScienceExperimentBtn" class="back-btn mt-8" data-i18n="backToActivitiesBtn"></button>
+        </div>
+
+        <!-- Memory Challenge Screen -->
+        <div id="memoryChallengeScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="memoryChallengeTitle"></h1>
+            <div class="memory-challenge-container">
+                <p class="font-semibold mb-4" data-i18n="memoryFactPrompt"></p>
+                <p class="fact-display" id="memoryFactDisplay"></p>
+                <div class="memory-options" id="memoryOptionsContainer">
+                    <!-- Options generated by JS -->
+                </div>
+                <button id="nextMemoryChallengeBtn" class="check-code-btn mt-4" data-i18n="nextChallengeBtn"></button>
+            </div>
+            <button id="backFromMemoryChallengeBtn" class="back-btn mt-8" data-i18n="backToActivitiesBtn"></button>
+        </div>
+
+        <!-- Time Travel Quiz Screen -->
+        <div id="timeTravelQuizScreen" class="screen">
+            <h1 class="text-4xl mb-8" data-i18n="timeTravelQuizTitle"></h1>
+            <div class="time-travel-quiz-container">
+                <p class="font-semibold mb-4" id="quizQuestionNumber"></p>
+                <p class="text-lg mb-6" id="quizQuestionText"></p>
+                <div class="quiz-options" id="quizOptionsContainer">
+                    <!-- Options generated by JS -->
+                </div>
+                <button id="nextQuizQuestionBtn" class="check-code-btn mt-4" data-i18n="nextQuestionBtn"></button>
+                <button id="finishQuizBtn" class="check-code-btn mt-4" style="display:none;" data-i18n="finishQuizBtn"></button>
+            </div>
+            <button id="backFromTimeTravelQuizBtn" class="back-btn mt-8" data-i18n="backToActivitiesBtn"></button>
+        </div>
+
+    </div>
+
+    <script>
+        // Define global state for the student
+        let studentData = {
+            name: "Student",
+            selectedClass: null,
+            avatar: null,
+            points: {
+                physical: 50,
+                cognitive: 50,
+                creative: 50,
+                social: 50
+            },
+            currentLang: 'en' // Default language
+        };
+
+        // --- DOM Elements ---
+        const languageSwitcher = document.getElementById('languageSwitcher'); // New
+
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const storeScreen = document.getElementById('storeScreen');
+        const activityScreen = document.getElementById('activityScreen');
+        const mathPuzzleScreen = document.getElementById('mathPuzzleScreen');
+        const readingTimeScreen = document.getElementById('readingTimeScreen');
+        const creativeWritingScreen = document.getElementById('creativeWritingScreen');
+        const scienceExperimentScreen = document.getElementById('scienceExperimentScreen');
+        const memoryChallengeScreen = document.getElementById('memoryChallengeScreen');
+        const timeTravelQuizScreen = document.getElementById('timeTravelQuizScreen');
+
+
+        // Login Screen Elements
+        const classSelection = document.getElementById('classSelection');
+        const studentPhotoSelection = document.getElementById('studentPhotoSelection');
+        const emojiPasswordInput = document.getElementById('emojiPasswordInput');
+        const fruitGrid = document.getElementById('fruitGrid');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Dashboard Screen Elements
+        const dashboardAvatar = document.getElementById('dashboard-avatar');
+        const studentNameDisplay = document.getElementById('student-name');
+        const physicalPointsDisplay = document.getElementById('physicalPoints');
+        const cognitivePointsDisplay = document.getElementById('cognitivePoints');
+        const creativePointsDisplay = document.getElementById('creativePoints');
+        const socialPointsDisplay = document.getElementById('socialPoints');
+        const earnQuickPointsBtn = document.getElementById('earnQuickPointsBtn');
+        const goToActivitiesBtn = document.getElementById('goToActivitiesBtn');
+        const logPhysicalActivityBtn = document.getElementById('logPhysicalActivityBtn');
+        const visitStoreBtn = document.getElementById('visitStoreBtn');
+
+        // Store Screen Elements
+        const storeAvatar = document.getElementById('store-avatar');
+        const storeStudentName = document.getElementById('store-student-name');
+        const storePhysicalPointsDisplay = document.getElementById('storePhysicalPoints');
+        const storeCognitivePointsDisplay = document.getElementById('storeCognitivePoints');
+        const storeCreativePointsDisplay = document.getElementById('storeCreativePoints');
+        const storeSocialPointsDisplay = document.getElementById('storeSocialPoints');
+        const storeItemsContainer = document.getElementById('storeItemsContainer');
+        const backToDashboardBtn = document.getElementById('backToDashboardBtn');
+
+        // Activity Screen Elements
+        const activityItemsContainer = document.getElementById('activityItemsContainer');
+        const backFromActivitiesBtn = document.getElementById('backFromActivitiesBtn');
+
+        // Math Puzzle Screen Elements
+        const mathCodeInput = document.getElementById('mathCodeInput');
+        const checkMathCodeBtn = document.getElementById('checkMathCodeBtn');
+        const backFromMathPuzzleBtn = document.getElementById('backFromMathPuzzleBtn');
+
+        // Reading Time Screen Elements
+        const readingOptions = document.getElementById('readingOptions');
+        const checkReadingAnswerBtn = document.getElementById('checkReadingAnswerBtn');
+        const backFromReadingTimeBtn = document.getElementById('backFromReadingTimeBtn');
+
+        // Creative Writing Screen Elements
+        const randomWordsDisplay = document.getElementById('randomWordsDisplay');
+        const creativeWritingTextarea = document.getElementById('creativeWritingTextarea');
+        const finishWritingBtn = document.getElementById('finishWritingBtn');
+        const backFromCreativeWritingBtn = document.getElementById('backFromCreativeWritingBtn');
+
+        // Science Experiment Screen Elements
+        const observationTextarea = document.getElementById('observationTextarea');
+        const submitObservationBtn = document.getElementById('submitObservationBtn');
+        const backFromScienceExperimentBtn = document.getElementById('backFromScienceExperimentBtn');
+
+        // Memory Challenge Screen Elements
+        const memoryFactDisplay = document.getElementById('memoryFactDisplay');
+        const memoryOptionsContainer = document.getElementById('memoryOptionsContainer');
+        const nextMemoryChallengeBtn = document.getElementById('nextMemoryChallengeBtn');
+        const backFromMemoryChallengeBtn = document.getElementById('backFromMemoryChallengeBtn');
+
+        // Time Travel Quiz Screen Elements
+        const quizQuestionNumber = document.getElementById('quizQuestionNumber');
+        const quizQuestionText = document.getElementById('quizQuestionText');
+        const quizOptionsContainer = document.getElementById('quizOptionsContainer');
+        const nextQuizQuestionBtn = document.getElementById('nextQuizQuestionBtn');
+        const finishQuizBtn = document.getElementById('finishQuizBtn');
+        const backFromTimeTravelQuizBtn = document.getElementById('backFromTimeTravelQuizBtn');
+
+
+        // Message Box Element
+        const messageBox = document.getElementById('messageBox');
+
+        // --- Configuration Data (TRANSLATIONS) ---
+        const translations = {
+            en: {
+                welcomeTitle: "Welcome to OquWay!",
+                chooseClass: "Choose Your Class:",
+                horseClass: "Horse Class",
+                falconClass: "Falcon Class",
+                snowLeopardClass: "Snow Leopard Class",
+                pickPhoto: "Pick Your Photo:",
+                selectClassPrompt: "Please select your class first to see available photos.",
+                enterPassword: "Enter Your 4-Fruit Emoji Password:",
+                loginBtn: "Login",
+                studentDefaultName: "Student", // Added default student name translation
+
+                dashboardTitle: "My OquWay Dashboard",
+                intentionPointsTitle: "My Intention Points:",
+                physicalPoints: "Physical",
+                cognitivePoints: "Cognitive",
+                creativePoints: "Creative",
+                socialPoints: "Social",
+                earnQuickPointsBtn: "Earn Quick Points",
+                goToActivitiesBtn: "Go to Learning Activities",
+                logPhysicalActivityBtn: "Log Physical Activity",
+                visitStoreBtn: "Visit Store",
+
+                storeTitle: "OquWay Intention Store",
+                buyBtn: "Buy",
+                backToDashboardBtn: "Back to Dashboard",
+
+                activitiesTitle: "Learning Activities",
+                backToActivitiesBtn: "Back to Activities",
+                startActivityBtn: "Start",
+
+                // Store Items
+                notebook: "Notebook",
+                soccerBall: "Soccer Ball",
+                healthySnack: "Healthy Snack",
+                paintSet: "Paint Set",
+                boardGame: "Board Game",
+
+                // Math Puzzle
+                mathPuzzleTitle: "Math Puzzle!",
+                mathPuzzlePrompt: "Complete the pattern to unlock the secret code:",
+                enterCodePrompt: "Enter the 3-digit code:",
+                checkCodeBtn: "Check Code",
+                mathCorrect: "Correct! You earned 10 cognitive points!",
+                mathIncorrect: "Incorrect. Try again!",
+                mathCodePlaceholder: "e.g. 123", // Placeholder for math code input
+
+                // Reading Time
+                readingTimeTitle: "📖 Reading Time",
+                squeakyStoryTitle: "The Little Squirrel's Big Adventure",
+                squeakyStoryContent: "Once upon a time, in a cozy oak tree, lived a tiny squirrel named Squeaky. Squeaky loved nuts more than anything! One crisp autumn morning, he spotted the biggest, shiniest acorn he had ever seen, just across a babbling brook. He knew it would be a challenge to get it, but Squeaky was a brave squirrel. He scampered down his tree, planning his route carefully. \"This will be my greatest treasure!\" he chattered.",
+                squeakyQuestion: "Question: What did Squeaky love more than anything?",
+                applesOption: "Apples",
+                nutsOption: "Nuts",
+                playingOption: "Playing",
+                checkAnswerBtn: "Check Answer",
+                readingCorrect: "Correct! You earned 10 cognitive points!",
+                readingIncorrect: "Incorrect. Keep trying!",
+                readingNoSelection: "Please select an answer!",
+
+                // Creative Writing
+                creativeWritingTitle: "✍️ Creative Writing",
+                creativeWritingPrompt: "Write a short story (at least 3 sentences) using these 5 words:",
+                finishWritingBtn: "Finish Writing",
+                writingTooShort: "Please write a bit more to complete your story!",
+                writingSuccess: "Wonderful story! You earned 15 creative points!",
+                creativeWritingPlaceholder: "Start your amazing story here...",
+
+                // Science Experiment
+                scienceExperimentTitle: "🔬 Science Experiment",
+                scienceExperimentName: "Experiment: Baking Soda & Vinegar Volcano! 🌋",
+                scienceExperimentDesc: "Imagine you have a small bottle. You add two spoonfuls of baking soda inside. Then, you slowly pour in some vinegar. What do you think will happen?",
+                yourObservation: "Your Observation:",
+                submitObservationBtn: "Submit Observation",
+                observationTooShort: "Please write a bit more about your observation!",
+                observationSuccess: "Excellent observation! You earned 10 cognitive points!",
+                observationPlaceholder: "Describe what you think happens...",
+
+                // Memory Challenge
+                memoryChallengeTitle: "🧠 Memory Challenge",
+                memoryFactPrompt: "Match the historical fact to the famous person:",
+                nextChallengeBtn: "Next Challenge",
+                memoryCorrect: "Correct!",
+                memoryIncorrect: "Incorrect, but keep learning!",
+                memoryAllDone: "You've completed all memory challenges! You earned 20 cognitive points!",
+
+                // Time Travel Quiz
+                timeTravelQuizTitle: "🗺️ Time Travel Quiz",
+                nextQuestionBtn: "Next Question",
+                finishQuizBtn: "Finish Quiz",
+                quizNoSelection: "Please select an answer!",
+                quizCorrect: "Correct!",
+                quizIncorrect: (answer) => `Incorrect. The answer was ${answer}.`,
+                quizComplete: (score, total) => `Quiz complete! You scored ${score} out of ${total}! You earned ${score * 5} cognitive points!`,
+                quizQuestionOf: (current, total) => `Question ${current} of ${total}`,
+
+
+                // General Messages
+                loginSuccess: "Login successful! Welcome to your dashboard!",
+                loginSelectClass: "Please select your class!",
+                loginSelectPhoto: "Please select your photo!",
+                loginEnterPassword: "Please enter 4 fruits for your password!",
+                pointsEarned: (points, type) => `You earned ${points} ${type} points!`,
+                physicalActivityLogged: (points) => `You logged physical activity and earned ${points} physical points!`,
+                purchaseSuccess: (itemName) => `You purchased the ${itemName}!`,
+                notEnoughPoints: (itemName) => `Not enough points for ${itemName}!`,
+                startingActivity: (title) => `Starting activity: ${title}`,
+                fruitPasswordPlaceholder: "Enter 4 fruits", // Placeholder for fruit password input
+            },
+            ru: {
+                welcomeTitle: "Добро пожаловать в OquWay!",
+                chooseClass: "Выберите свой класс:",
+                horseClass: "Класс Лошади",
+                falconClass: "Класс Сокола",
+                snowLeopardClass: "Класс Снежного Барса",
+                pickPhoto: "Выберите свою фотографию:",
+                selectClassPrompt: "Пожалуйста, сначала выберите свой класс, чтобы увидеть доступные фотографии.",
+                enterPassword: "Введите пароль из 4 фруктов:",
+                loginBtn: "Войти",
+                studentDefaultName: "Ученик",
+
+                dashboardTitle: "Моя панель OquWay",
+                intentionPointsTitle: "Мои баллы намерения:",
+                physicalPoints: "Физические",
+                cognitivePoints: "Когнитивные",
+                creativePoints: "Творческие",
+                socialPoints: "Социальные",
+                earnQuickPointsBtn: "Набрать быстрые баллы",
+                goToActivitiesBtn: "Перейти к занятиям",
+                logPhysicalActivityBtn: "Зарегистрировать физ. активность",
+                visitStoreBtn: "Посетить магазин",
+
+                storeTitle: "Магазин намерения OquWay",
+                buyBtn: "Купить",
+                backToDashboardBtn: "Вернуться на панель",
+
+                activitiesTitle: "Учебные занятия",
+                backToActivitiesBtn: "Вернуться к занятиям",
+                startActivityBtn: "Начать",
+
+                // Store Items
+                notebook: "Тетрадь",
+                soccerBall: "Футбольный мяч",
+                healthySnack: "Здоровый перекус",
+                paintSet: "Набор для рисования",
+                boardGame: "Настольная игра",
+
+                // Math Puzzle
+                mathPuzzleTitle: "Математическая головоломка!",
+                mathPuzzlePrompt: "Завершите шаблон, чтобы разблокировать секретный код:",
+                enterCodePrompt: "Введите 3-значный код:",
+                checkCodeBtn: "Проверить код",
+                mathCorrect: "Верно! Вы получили 10 когнитивных баллов!",
+                mathIncorrect: "Неверно. Попробуйте снова!",
+                mathCodePlaceholder: "напр. 123",
+
+                // Reading Time
+                readingTimeTitle: "📖 Время чтения",
+                squeakyStoryTitle: "Большое приключение маленькой белки",
+                squeakyStoryContent: "Давным-давно, на уютном дубе, жила крошечная белка по имени Сквики. Сквики любил орехи больше всего на свете! Одним свежим осенним утром он заметил самый большой и блестящий желудь, который когда-либо видел, прямо через журчащий ручей. Он знал, что добраться до него будет непросто, но Сквики был храброй белкой. Он быстро спустился со своего дерева, тщательно планируя свой маршрут. «Это будет мое величайшее сокровище!» - проболтал он.",
+                squeakyQuestion: "Вопрос: Что Сквики любил больше всего на свете?",
+                applesOption: "Яблоки",
+                nutsOption: "Орехи",
+                playingOption: "Игры",
+                checkAnswerBtn: "Проверить ответ",
+                readingCorrect: "Верно! Вы получили 10 когнитивных баллов!",
+                readingIncorrect: "Неверно. Продолжайте попытки!",
+                readingNoSelection: "Пожалуйста, выберите ответ!",
+
+                // Creative Writing
+                creativeWritingTitle: "✍️ Творческое письмо",
+                creativeWritingPrompt: "Напишите короткий рассказ (минимум 3 предложения), используя эти 5 слов:",
+                finishWritingBtn: "Завершить написание",
+                writingTooShort: "Пожалуйста, напишите еще немного, чтобы завершить свой рассказ!",
+                writingSuccess: "Замечательная история! Вы получили 15 творческих баллов!",
+                creativeWritingPlaceholder: "Начните свою удивительную историю здесь...",
+
+                // Science Experiment
+                scienceExperimentTitle: "🔬 Научный эксперимент",
+                scienceExperimentName: "Эксперимент: Вулкан из пищевой соды и уксуса! 🌋",
+                scienceExperimentDesc: "Представьте, что у вас есть маленькая бутылка. Вы добавляете в нее две ложки пищевой соды. Затем вы медленно наливаете немного уксуса. Как вы думаете, что произойдет?",
+                yourObservation: "Ваше наблюдение:",
+                submitObservationBtn: "Отправить наблюдение",
+                observationTooShort: "Пожалуйста, напишите немного больше о своем наблюдении!",
+                observationSuccess: "Отличное наблюдение! Вы получили 10 когнитивных баллов!",
+                observationPlaceholder: "Опишите, что, по вашему мнению, происходит...",
+
+                // Memory Challenge
+                memoryChallengeTitle: "🧠 Испытание памяти",
+                memoryFactPrompt: "Сопоставьте исторический факт с известной личностью:",
+                nextChallengeBtn: "Следующее задание",
+                memoryCorrect: "Верно!",
+                memoryIncorrect: "Неверно, но продолжайте учиться!",
+                memoryAllDone: "Вы выполнили все задания на память! Вы получили 20 когнитивных баллов!",
+
+                // Time Travel Quiz
+                timeTravelQuizTitle: "🗺️ Виртуальная викторина",
+                nextQuestionBtn: "Следующий вопрос",
+                finishQuizBtn: "Завершить викторину",
+                quizNoSelection: "Пожалуйста, выберите ответ!",
+                quizCorrect: "Верно!",
+                quizIncorrect: (answer) => `Неверно. Ответ был ${answer}.`,
+                quizComplete: (score, total) => `Викторина завершена! Вы набрали ${score} из ${total}! Вы заработали ${score * 5} когнитивных баллов!`,
+                quizQuestionOf: (current, total) => `Вопрос ${current} из ${total}`,
+
+                // General Messages
+                loginSuccess: "Вход успешен! Добро пожаловать на панель управления!",
+                loginSelectClass: "Пожалуйста, выберите свой класс!",
+                loginSelectPhoto: "Пожалуйста, выберите свою фотографию!",
+                loginEnterPassword: "Пожалуйста, введите 4 фрукта для вашего пароля!",
+                pointsEarned: (points, type) => `Вы заработали ${points} ${type} баллов!`,
+                physicalActivityLogged: (points) => `Вы зарегистрировали физическую активность и заработали ${points} физических баллов!`,
+                purchaseSuccess: (itemName) => `Вы купили ${itemName}!`,
+                notEnoughPoints: (itemName) => `Недостаточно баллов для ${itemName}!`,
+                startingActivity: (title) => `Запуск активности: ${title}`,
+                fruitPasswordPlaceholder: "Введите 4 фрукта",
+            },
+            kg: {
+                welcomeTitle: "OquWay'га кош келиңиз!",
+                chooseClass: "Классыңызды тандаңыз:",
+                horseClass: "Жылкы классы",
+                falconClass: "Шумкар классы",
+                snowLeopardClass: "Илбирс классы",
+                pickPhoto: "Сүрөтүңүздү тандаңыз:",
+                selectClassPrompt: "Сураныч, жеткиликтүү сүрөттөрдү көрүү үчүн адегенде классыңызды тандаңыз.",
+                enterPassword: "4-мөмө эмодзи паролуңузду киргизиңиз:",
+                loginBtn: "Кирүү",
+                studentDefaultName: "Окуучу",
+
+                dashboardTitle: "Менин OquWay тактам",
+                intentionPointsTitle: "Менин ниет упайларым:",
+                physicalPoints: "Физикалык",
+                cognitivePoints: "Таанып-билүүчүлүк",
+                creativePoints: "Чыгармачыл",
+                socialPoints: "Социалдык",
+                earnQuickPointsBtn: "Тез упай топтоо",
+                goToActivitiesBtn: "Окуу иш-чараларына өтүү",
+                logPhysicalActivityBtn: "Физикалык активдүүлүктү каттоо",
+                visitStoreBtn: "Дүкөнгө баруу",
+
+                storeTitle: "OquWay ниет дүкөнү",
+                buyBtn: "Сатып алуу",
+                backToDashboardBtn: "Башкы бетке кайтуу",
+
+                activitiesTitle: "Окуу иш-чаралары",
+                backToActivitiesBtn: "Иш-чараларга кайтуу",
+                startActivityBtn: "Баштоо",
+
+                // Store Items
+                notebook: "Дәптер",
+                soccerBall: "Футбол тобу",
+                healthySnack: "Пайдалуу тамак",
+                paintSet: "Боёк топтому",
+                boardGame: "Үстөл оюну",
+
+                // Math Puzzle
+                mathPuzzleTitle: "Математикалык табышмак!",
+                mathPuzzlePrompt: "Жашыруун кодду ачуу үчүн үлгүнү толуктаңыз:",
+                enterCodePrompt: "3 орундуу кодду киргизиңиз:",
+                checkCodeBtn: "Кодду текшерүү",
+                mathCorrect: "Туура! Сиз 10 когнитивдик упай алдыңыз!",
+                mathIncorrect: "Туура эмес. Кайра аракет кылыңыз!",
+                mathCodePlaceholder: "мис. 123",
+
+                // Reading Time
+                readingTimeTitle: "📖 Окуу убактысы",
+                squeakyStoryTitle: "Кичинекей тайгандын чоң жоруктары",
+                squeakyStoryContent: "Бир заманда, жайлуу эмен дарагында, Сквики аттуу кичинекей тайган жашаган. Сквики жаңгакты баарынан да жакшы көрчү! Бир салкын күзгү таңда, ал шаркыраган агын суунун аркы өйүзүндөгү эң чоң, эң жалтырак жаңгакты көрдү. Ал ага жетүү кыйын болорун билген, бирок Сквики эр жүрөк тайган болчу. Ал дарагынан ылдый түшүп, жолун кылдат пландаштырды. «Бул менин эң чоң кенчим болот!» - деп шыбырады ал.",
+                squeakyQuestion: "Суроо: Сквики баарынан да эмнени жакшы көрчү?",
+                applesOption: "Алма",
+                nutsOption: "Жаңгак",
+                playingOption: "Ойноо",
+                checkAnswerBtn: "Жоопту текшерүү",
+                readingCorrect: "Туура! Сиз 10 когнитивдик упай алдыңыз!",
+                readingIncorrect: "Туура эмес. Аракет кыла бериңиз!",
+                readingNoSelection: "Сураныч, жоопту тандаңыз!",
+
+                // Creative Writing
+                creativeWritingTitle: "✍️ Чыгармачыл жазуу",
+                creativeWritingPrompt: "Бул 5 сөздү колдонуп, кыска аңгеме жазыңыз (кеминде 3 сүйлөм):",
+                finishWritingBtn: "Жазууну бүтүрүү",
+                writingTooShort: "Сураныч, аңгемеңизди толуктоо үчүн дагы бир аз жазыңыз!",
+                writingSuccess: "Керемет аңгеме! Сиз 15 чыгармачыл упай алдыңыз!",
+                creativeWritingPlaceholder: "Керемет аңгемеңизди бул жерден баштаңыз...",
+
+                // Science Experiment
+                scienceExperimentTitle: "🔬 Илим эксперименти",
+                scienceExperimentName: "Эксперимент: Аш содасы жана уксус жанар тоосу! 🌋",
+                scienceExperimentDesc: "Кичинекей бөтөлкөңүз бар деп элестетиңиз. Ага эки кашык аш содасын саласыз. Андан кийин, жайлап бир аз уксус куясыз. Эмне болот деп ойлойсуз?",
+                yourObservation: "Сиздин байкооңуз:",
+                submitObservationBtn: "Байкоону тапшыруу",
+                observationTooShort: "Сураныч, байкооңуз жөнүндө дагы бир аз жазыңыз!",
+                observationSuccess: "Мыкты байкоо! Сиз 10 когнитивдик упай алдыңыз!",
+                observationPlaceholder: "Эмне болот деп ойлойсуз, сүрөттөп бериңиз...",
+
+                // Memory Challenge
+                memoryChallengeTitle: "🧠 Эс тутум сыноосу",
+                memoryFactPrompt: "Тарыхый фактыны атактуу адамга дал келтириңиз:",
+                nextChallengeBtn: "Кийинки сыноо",
+                memoryCorrect: "Туура!",
+                memoryIncorrect: "Туура эмес, бирок үйрөнө бериңиз!",
+                memoryAllDone: "Сиз бардык эс тутум сыноолорун аяктадыңыз! Сиз 20 когнитивдик упай алдыңыз!",
+
+                // Time Travel Quiz
+                timeTravelQuizTitle: "🗺️ Убакыт саякат викторинасы",
+                nextQuestionBtn: "Кийинки суроо",
+                finishQuizBtn: "Викторинаны бүтүрүү",
+                quizNoSelection: "Сураныч, жоопту тандаңыз!",
+                quizCorrect: "Туура!",
+                quizIncorrect: (answer) => `Туура эмес. Жооп ${answer} болгон.`,
+                quizComplete: (score, total) => `Викторина бүттү! Сиз ${total} ичинен ${score} упай алдыңыз! Сиз ${score * 5} когнитивдик упай алдыңыз!`,
+                quizQuestionOf: (current, total) => `${current} суроо ${total} ичинен`,
+
+                // General Messages
+                loginSuccess: "Кирүү ийгиликтүү! Башкы тактаңызга кош келиңиз!",
+                loginSelectClass: "Сураныч, классыңызды тандаңыз!",
+                loginSelectPhoto: "Сураныч, сүрөтүңүздү тандаңыз!",
+                loginEnterPassword: "Сураныч, паролуңуз үчүн 4 мөмө киргизиңиз!",
+                pointsEarned: (points, type) => `Сиз ${points} ${type} упай алдыңыз!`,
+                physicalActivityLogged: (points) => `Сиз физикалык активдүүлүктү каттадыңыз жана ${points} физикалык упай алдыңыз!`,
+                purchaseSuccess: (itemName) => `Сиз ${itemName} сатып алдыңыз!`,
+                notEnoughPoints: (itemName) => `${itemName} үчүн упай жетишсиз!`,
+                startingActivity: (title) => `Иш-чара башталууда: ${title}`,
+                fruitPasswordPlaceholder: "4 мөмө киргизиңиз",
+            }
+        };
+
+        const CLASS_NAMES = {
+            "Horse": "Horse",
+            "Falcon": "Falcon",
+            "Snow Leopard": "Snow Leopard"
+        };
+
+        const STUDENT_PHOTOS = [
+            "https://placehold.co/100x100/ADD8E6/000000?text=S1",
+            "https://placehold.co/100x100/90EE90/000000?text=S2",
+            "https://placehold.co/100x100/FFB6C1/000000?text=S3",
+            "https://placehold.co/100x100/FFD700/000000?text=S4",
+            "https://placehold.co/100x100/DDA0DD/000000?text=S5",
+            "https://placehold.co/100x100/F08080/000000?text=S6",
+            "https://placehold.co/100x100/B0C4DE/000000?text=S7",
+            "https://placehold.co/100x100/DAA520/000000?text=S8",
+            "https://placehold.co/100x100/C0C0C0/000000?text=S9"
+        ];
+
+        const FRUIT_EMOJIS = ["🍎", "🍉", "🍌", "🍓", "🍍", "🥭", "🥝", "🍊", "🍒"];
+
+        const storeItems = [
+            { id: 'notebook', name: 'notebook', icon: '📚', cost: { cognitive: 5 } },
+            { id: 'soccer-ball', name: 'soccerBall', icon: '⚽', cost: { physical: 7, social: 3 } },
+            { id: 'healthy-snack', name: 'healthySnack', icon: '🍏', cost: { physical: 3 } },
+            { id: 'paint-set', name: 'paintSet', icon: '🖌️', cost: { creative: 8 } },
+            { id: 'board-game', name: 'boardGame', icon: '🎲', cost: { social: 6, cognitive: 2 } }
+        ];
+
+        const learningActivities = [
+            { id: 'math-puzzle', subject: 'Math', icon: '🔢', titleKey: 'mathPuzzleTitle', descriptionKey: 'mathPuzzlePrompt' },
+            { id: 'reading-time', subject: 'Reading', icon: '📖', titleKey: 'readingTimeTitle', descriptionKey: 'squeakyStoryTitle' },
+            { id: 'creative-writing', subject: 'Writing', icon: '✍️', titleKey: 'creativeWritingTitle', descriptionKey: 'creativeWritingPrompt' },
+            { id: 'science-experiment', subject: 'Science', icon: '🔬', titleKey: 'scienceExperimentTitle', descriptionKey: 'scienceExperimentName' },
+            { id: 'memory-challenge', subject: 'History', icon: '🧠', titleKey: 'memoryChallengeTitle', descriptionKey: 'memoryFactPrompt' },
+            { id: 'time-travel-quiz', subject: 'History', icon: '🗺️', titleKey: 'timeTravelQuizTitle', descriptionKey: 'timeTravelQuizTitle' } // Description here is just for activity card display
+        ];
+
+        // --- Math Puzzle specific data ---
+        const CORRECT_MATH_CODE = "40";
+
+        // --- Reading Time specific data ---
+        const READING_CORRECT_ANSWER = "nuts";
+
+        // --- Creative Writing specific data ---
+        const WORDS_FOR_WRITING = [
+            "sparkle", "whisper", "brave", "mystery", "journey",
+            "ancient", "future", "silent", "giant", "tiny",
+            "magical", "curious", "hidden", "velvet", "echo"
+        ];
+        const NUM_WORDS_TO_GENERATE = 5;
+
+        // --- Memory Challenge specific data ---
+        const MEMORY_CHALLENGE_QUESTIONS = [
+            {
+                factKey: "factColumbus", // New key for translation
+                correctAnswer: "Christopher Columbus",
+                options: ["Isaac Newton", "Christopher Columbus", "Leonardo da Vinci", "Marie Curie"]
+            },
+            {
+                factKey: "factShakespeare",
+                correctAnswer: "William Shakespeare",
+                options: ["William Shakespeare", "Jane Austen", "Charles Dickens", "Mark Twain"]
+            },
+            {
+                factKey: "factNapoleon",
+                correctAnswer: "Napoleon Bonaparte",
+                options: ["George Washington", "Abraham Lincoln", "Napoleon Bonaparte", "Julius Caesar"]
+            },
+            {
+                factKey: "factMLK",
+                correctAnswer: "Martin Luther King Jr.",
+                options: ["Rosa Parks", "Nelson Mandela", "Martin Luther King Jr.", "Abraham Lincoln"]
+            }
+        ];
+        let currentMemoryChallengeIndex = 0;
+
+        // --- Time Travel Quiz specific data ---
+        const TIME_TRAVEL_QUIZ_QUESTIONS = [
+            {
+                questionKey: "quizQ1",
+                options: ["Romans", "Greeks", "Egyptians", "Vikings"],
+                correctAnswer: "Egyptians"
+            },
+            {
+                questionKey: "quizQ2",
+                options: ["Wood", "Mud Bricks", "Concrete", "Ice Blocks"],
+                correctAnswer: "Concrete"
+            },
+            {
+                questionKey: "quizQ3",
+                options: ["World Cup", "Olympics", "Gladiator Fights", "Chariot Races"],
+                correctAnswer: "Olympics"
+            }
+        ];
+        let currentQuizQuestionIndex = 0;
+        let quizScore = 0;
+
+        // Add translations for new dynamic content
+        translations.en.factColumbus = "Discovered America in 1492.";
+        translations.en.factShakespeare = "Wrote the play 'Romeo and Juliet'.";
+        translations.en.factNapoleon = "Was a great general and emperor of France.";
+        translations.en.factMLK = "Fought for civil rights and racial equality in the USA.";
+
+        translations.en.quizQ1 = "Which ancient civilization built the pyramids?";
+        translations.en.quizQ2 = "What did ancient Romans use to build strong structures, including the Pantheon?";
+        translations.en.quizQ3 = "In ancient Greece, what major sporting event was held every four years?";
+
+        translations.ru.factColumbus = "Открыл Америку в 1492 году.";
+        translations.ru.factShakespeare = "Написал пьесу 'Ромео и Джульетта'.";
+        translations.ru.factNapoleon = "Был великим полководцем и императором Франции.";
+        translations.ru.factMLK = "Боролся за гражданские права и расовое равенство в США.";
+
+        translations.ru.quizQ1 = "Какая древняя цивилизация построила пирамиды?";
+        translations.ru.quizQ2 = "Что древние римляне использовали для строительства прочных сооружений, включая Пантеон?";
+        translations.ru.quizQ3 = "В Древней Греции какое крупное спортивное событие проводилось каждые четыре года?";
+
+        translations.kg.factColumbus = "1492-жылы Американы ачкан.";
+        translations.kg.factShakespeare = "'Ромео жана Джульетта' пьесасын жазган.";
+        translations.kg.factNapoleon = "Улуу кол башчы жана Франциянын императору болгон.";
+        translations.kg.factMLK = "АКШда жарандык укуктар жана расалык теңдик үчүн күрөшкөн.";
+
+        translations.kg.quizQ1 = "Кайсы байыркы цивилизация пирамидаларды курган?";
+        translations.kg.quizQ2 = "Байыркы римдиктер күчтүү курулуштарды, анын ичинде Пантеонду куруу үчүн эмнени колдонушкан?";
+        translations.kg.quizQ3 = "Байыркы Грецияда төрт жылда бир кандай ири спорттук иш-чара өткөрүлгөн?";
+
+        // --- Internationalization (i18n) Functions ---
+
+        /**
+         * Translates a given text key based on the current language.
+         * @param {string} key - The key for the text in the translations object.
+         * @param {...any} args - Arguments to pass to the translation function if it's a function.
+         * @returns {string} The translated text.
+         */
+        function getText(key, ...args) {
+            const currentLangTranslations = translations[studentData.currentLang];
+            const text = currentLangTranslations[key];
+            if (typeof text === 'function') {
+                return text(...args);
+            }
+            return text || key; // Fallback to key if translation not found
+        }
+
+        /**
+         * Updates all elements with a `data-i18n` attribute based on the current language.
+         */
+        function updateTextContent() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.dataset.i18n;
+                // Handle placeholder separately for input fields
+                if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                    element.placeholder = getText(key);
+                } else if (element.tagName === 'TEXTAREA' && element.hasAttribute('placeholder')) {
+                    element.placeholder = getText(key);
+                }
+                else {
+                    element.textContent = getText(key);
+                }
+            });
+            // Specific updates for dynamic content that isn't handled by data-i18n
+            if (studentData.selectedClass) {
+                // Ensure 'studentDefaultName' is defined for all languages
+                studentData.name = `${getText(CLASS_NAMES[studentData.selectedClass].toLowerCase() + 'Class')} ${getText('studentDefaultName')}`;
+            }
+            updateDashboardPoints(); // Update points labels on dashboard
+            updateStorePoints(); // Update points labels on store
+            renderStore(); // Re-render store items
+            renderActivities(); // Re-render activity cards
+            if (mathPuzzleScreen.classList.contains('active')) renderMathPuzzle(); // Re-render math puzzle content
+            if (readingTimeScreen.classList.contains('active')) renderReadingTime(); // Re-render reading time content
+            if (creativeWritingScreen.classList.contains('active')) renderCreativeWriting(); // Re-render creative writing
+            if (scienceExperimentScreen.classList.contains('active')) renderScienceExperiment(); // Re-render science experiment
+            if (memoryChallengeScreen.classList.contains('active')) loadMemoryQuestion(currentMemoryChallengeIndex); // Re-render memory challenge
+            if (timeTravelQuizScreen.classList.contains('active')) loadQuizQuestion(currentQuizQuestionIndex); // Re-render quiz
+        }
+
+        /**
+         * Sets the application language and updates the UI.
+         * @param {string} langCode - The language code (e.g., 'en', 'ru', 'kg').
+         */
+        function setLanguage(langCode) {
+            if (translations[langCode]) {
+                studentData.currentLang = langCode;
+                // Update selected flag visual
+                document.querySelectorAll('.language-switcher img').forEach(flag => {
+                    flag.classList.remove('selected');
+                    if (flag.dataset.lang === langCode) {
+                        flag.classList.add('selected');
+                    }
+                });
+                updateTextContent();
+            } else {
+                console.warn(`Language '${langCode}' not supported.`);
+            }
+        }
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} key - The key for the message in the translations object.
+         * @param {number} duration - Duration in milliseconds for the message to be visible.
+         * @param {...any} args - Arguments to pass to the translation function if it's a function.
+         */
+        function showMessage(key, duration = 3000, ...args) {
+            messageBox.textContent = getText(key, ...args);
+            messageBox.classList.add('active');
+            setTimeout(() => {
+                messageBox.classList.remove('active');
+            }, duration);
+        }
+
+        /**
+         * Switches the active screen.
+         * @param {HTMLElement} screenToShow - The screen element to make active.
+         */
+        function showScreen(screenToShow) {
+            [loginScreen, dashboardScreen, storeScreen, activityScreen, mathPuzzleScreen,
+             readingTimeScreen, creativeWritingScreen, scienceExperimentScreen,
+             memoryChallengeScreen, timeTravelQuizScreen].forEach(screen => {
+                screen.classList.remove('active');
+            });
+            screenToShow.classList.add('active');
+            updateTextContent(); // Update text content when screen changes
+        }
+
+        /**
+         * Updates the displayed point balances on the dashboard.
+         */
+        function updateDashboardPoints() {
+            physicalPointsDisplay.textContent = studentData.points.physical;
+            cognitivePointsDisplay.textContent = studentData.points.cognitive;
+            creativePointsDisplay.textContent = studentData.points.creative;
+            socialPointsDisplay.textContent = studentData.points.social;
+            // Update labels with current language
+            document.querySelector('.point-physical .label').textContent = getText('physicalPoints');
+            document.querySelector('.point-cognitive .label').textContent = getText('cognitivePoints');
+            document.querySelector('.point-creative .label').textContent = getText('creativePoints');
+            document.querySelector('.point-social .label').textContent = getText('socialPoints');
+        }
+
+        /**
+         * Updates the displayed point balances on the store screen.
+         */
+        function updateStorePoints() {
+            storePhysicalPointsDisplay.textContent = studentData.points.physical;
+            storeCognitivePointsDisplay.textContent = studentData.points.cognitive;
+            storeCreativePointsDisplay.textContent = studentData.points.creative;
+            storeSocialPointsDisplay.textContent = studentData.points.social;
+        }
+
+        /**
+         * Checks if the student has enough points to buy an item.
+         * @param {object} itemCost - An object containing the cost for each point type.
+         * @returns {boolean} True if student has enough points, false otherwise.
+         */
+        function canAfford(itemCost) {
+            for (const type in itemCost) {
+                if (studentData.points[type] < itemCost[type]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Deducts points from studentData based on item cost.
+         * @param {object} itemCost - An object containing the cost for each point type.
+         */
+        function deductPoints(itemCost) {
+            for (const type in itemCost) {
+                studentData.points[type] -= itemCost[type];
+            }
+        }
+
+        // --- Login Screen Logic ---
+
+        /**
+         * Populates the student photo selection based on class.
+         */
+        function populateStudentPhotos() {
+            studentPhotoSelection.innerHTML = ''; // Clear previous photos
+            STUDENT_PHOTOS.forEach(photoUrl => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'student-photo-item';
+                photoItem.dataset.photoUrl = photoUrl;
+                photoItem.innerHTML = `<img src="${photoUrl}" alt="Student Photo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/CCCCCC/000000?text=Error';">`; // Added onerror fallback
+                photoItem.addEventListener('click', handleStudentPhotoSelection);
+                studentPhotoSelection.appendChild(photoItem);
+            });
+            // Automatically select the first photo if none is selected
+            if (!studentData.avatar && STUDENT_PHOTOS.length > 0) {
+                studentData.avatar = STUDENT_PHOTOS[0];
+                const firstPhotoItem = studentPhotoSelection.querySelector('.student-photo-item');
+                if (firstPhotoItem) {
+                    firstPhotoItem.classList.add('selected');
+                }
+            }
+        }
+
+        /**
+         * Handles the selection of a class.
+         * @param {Event} event - The click event.
+         */
+        function handleClassSelection(event) {
+            const selectedItem = event.target.closest('.class-item');
+            if (selectedItem) {
+                document.querySelectorAll('.class-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedItem.classList.add('selected');
+                studentData.selectedClass = selectedItem.dataset.class;
+                studentData.name = `${getText(studentData.selectedClass.toLowerCase() + 'Class')} ${getText('studentDefaultName')}`; // Update student name with translation
+                populateStudentPhotos(); // Show photos after class is selected
+            }
+        }
+
+        /**
+         * Handles the selection of a student photo.
+         * @param {Event} event - The click event.
+         */
+        function handleStudentPhotoSelection(event) {
+            const selectedItem = event.target.closest('.student-photo-item');
+            if (selectedItem) {
+                document.querySelectorAll('.student-photo-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedItem.classList.add('selected');
+                studentData.avatar = selectedItem.dataset.photoUrl;
+            }
+        }
+
+        /**
+         * Renders the 3x3 fruit grid.
+         */
+        function renderFruitGrid() {
+            fruitGrid.innerHTML = ''; // Clear previous buttons
+            FRUIT_EMOJIS.forEach(fruit => {
+                const fruitButton = document.createElement('button');
+                fruitButton.className = 'fruit-button';
+                fruitButton.textContent = fruit;
+                fruitButton.addEventListener('click', () => {
+                    if (emojiPasswordInput.value.length < 4) {
+                        emojiPasswordInput.value += fruit;
+                    }
+                });
+                fruitGrid.appendChild(fruitButton);
+            });
+            // Set the placeholder for the fruit password input
+            emojiPasswordInput.placeholder = getText('fruitPasswordPlaceholder');
+        }
+
+        /**
+         * Handles the login attempt.
+         */
+        function handleLogin() {
+            if (!studentData.selectedClass) {
+                showMessage("loginSelectClass");
+                return;
+            }
+            if (!studentData.avatar) {
+                showMessage("loginSelectPhoto");
+                return;
+            }
+            if (emojiPasswordInput.value.length < 4) {
+                showMessage("loginEnterPassword");
+                return;
+            }
+
+            // Successful login (password validation skipped as per request)
+            showMessage("loginSuccess", 2000);
+            renderDashboard();
+            showScreen(dashboardScreen);
+        }
+
+        // --- Dashboard Screen Logic ---
+
+        /**
+         * Renders the dashboard with current student data.
+         */
+        function renderDashboard() {
+            dashboardAvatar.src = studentData.avatar;
+            dashboardAvatar.alt = `${studentData.name}'s Avatar`;
+            studentNameDisplay.textContent = studentData.name;
+            updateDashboardPoints();
+        }
+
+        /**
+         * Simulates earning random points (retains original "Start Activity" functionality).
+         */
+        function earnQuickPoints() {
+            const pointTypes = ['physical', 'cognitive', 'creative', 'social'];
+            const randomType = pointTypes[Math.floor(Math.random() * pointTypes.length)];
+            const earnedPoints = Math.floor(Math.random() * 5) + 1; // Earn 1-5 points
+
+            studentData.points[randomType] += earnedPoints;
+            showMessage("pointsEarned", 2000, earnedPoints, getText(randomType + 'Points').toLowerCase());
+            updateDashboardPoints();
+        }
+
+        /**
+         * Simulates logging physical activity, earning physical points.
+         */
+        function logPhysicalActivity() {
+            const earnedPoints = Math.floor(Math.random() * 3) + 1; // Earn 1-3 physical points
+            studentData.points.physical += earnedPoints;
+            showMessage("physicalActivityLogged", 2000, earnedPoints);
+            updateDashboardPoints();
+        }
+
+        // --- Store Screen Logic ---
+
+        /**
+         * Renders the store items and updates store point display.
+         */
+        function renderStore() {
+            storeAvatar.src = studentData.avatar;
+            storeAvatar.alt = `${studentData.name}'s Avatar`;
+            storeStudentName.textContent = studentData.name;
+            updateStorePoints();
+
+            storeItemsContainer.innerHTML = ''; // Clear previous items
+
+            storeItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'store-item';
+                itemDiv.innerHTML = `
+                    <span class="item-icon">${item.icon}</span>
+                    <span class="item-name">${getText(item.name)}</span>
+                    <div class="item-cost">
+                        ${Object.keys(item.cost).map(type => {
+                            let icon, colorClass;
+                            switch (type) {
+                                case 'physical': icon = '💪'; colorClass = 'point-physical'; break;
+                                case 'cognitive': icon = '🧠'; colorClass = 'point-cognitive'; break;
+                                case 'creative': icon = '🎨'; colorClass = 'point-creative'; break;
+                                case 'social': icon = '🤝'; colorClass = 'point-social'; break;
+                                default: icon = ''; colorClass = '';
+                            }
+                            return `<div class="cost-point ${colorClass}"><span class="icon">${icon}</span> ${item.cost[type]}</div>`;
+                        }).join('')}
+                    </div>
+                    <button class="buy-btn" data-item-id="${item.id}">${getText('buyBtn')}</button>
+                `;
+
+                const buyButton = itemDiv.querySelector('.buy-btn');
+                buyButton.disabled = !canAfford(item.cost); // Disable if not affordable
+
+                buyButton.addEventListener('click', () => handlePurchase(item));
+                storeItemsContainer.appendChild(itemDiv);
+            });
+        }
+
+        /**
+         * Handles the purchase of an item from the store.
+         * @param {object} item - The item object being purchased.
+         */
+        function handlePurchase(item) {
+            if (canAfford(item.cost)) {
+                deductPoints(item.cost);
+                showMessage("purchaseSuccess", 2000, getText(item.name));
+                updateStorePoints();
+                renderStore(); // Re-render store to update button states
+            } else {
+                showMessage("notEnoughPoints", 2000, getText(item.name));
+            }
+        }
+
+        // --- Activity Screen Logic ---
+
+        /**
+         * Renders the list of learning activities.
+         */
+        function renderActivities() {
+            activityItemsContainer.innerHTML = ''; // Clear previous activities
+
+            learningActivities.forEach(activity => {
+                const activityCard = document.createElement('div');
+                activityCard.className = 'activity-card';
+                activityCard.innerHTML = `
+                    <span class="subject-icon">${activity.icon}</span>
+                    <span class="activity-title">${getText(activity.titleKey)}</span>
+                    <p class="activity-description">${getText(activity.descriptionKey)}</p>
+                    <button class="start-activity-btn" data-activity-id="${activity.id}">${getText('startActivityBtn')}</button>
+                `;
+
+                const startButton = activityCard.querySelector('.start-activity-btn');
+                startButton.addEventListener('click', () => handleStartActivityFromList(activity)); // Pass entire activity object
+                activityItemsContainer.appendChild(activityCard);
+            });
+        }
+
+        /**
+         * Handles the start of an activity from the learning activities list.
+         * @param {object} activity - The activity object being started.
+         */
+        function handleStartActivityFromList(activity) {
+            switch (activity.id) {
+                case 'math-puzzle':
+                    renderMathPuzzle();
+                    showScreen(mathPuzzleScreen);
+                    break;
+                case 'reading-time':
+                    renderReadingTime();
+                    showScreen(readingTimeScreen);
+                    break;
+                case 'creative-writing':
+                    renderCreativeWriting();
+                    showScreen(creativeWritingScreen);
+                    break;
+                case 'science-experiment':
+                    renderScienceExperiment();
+                    showScreen(scienceExperimentScreen);
+                    break;
+                case 'memory-challenge':
+                    renderMemoryChallenge();
+                    showScreen(memoryChallengeScreen);
+                    break;
+                case 'time-travel-quiz':
+                    renderTimeTravelQuiz();
+                    showScreen(timeTravelQuizScreen);
+                    break;
+                default:
+                    console.log(getText('startingActivity', getText(activity.titleKey)));
+                    showMessage("startingActivity", 1500, getText(activity.titleKey));
+                    break;
+            }
+        }
+
+        // --- Math Puzzle Screen Logic ---
+        /**
+         * Renders the Math Puzzle screen.
+         */
+        function renderMathPuzzle() {
+            mathCodeInput.value = ''; // Clear previous input
+            document.querySelector('#mathPuzzleScreen h1').textContent = getText('mathPuzzleTitle');
+            document.querySelector('#mathPuzzleScreen p[data-i18n="mathPuzzlePrompt"]').textContent = getText('mathPuzzlePrompt');
+            document.querySelector('#mathPuzzleScreen label[data-i18n="enterCodePrompt"]').textContent = getText('enterCodePrompt');
+            document.getElementById('checkMathCodeBtn').textContent = getText('checkCodeBtn');
+            document.getElementById('backFromMathPuzzleBtn').textContent = getText('backToActivitiesBtn');
+            mathCodeInput.placeholder = getText('mathCodePlaceholder');
+        }
+
+        /**
+         * Checks the entered math puzzle code.
+         */
+        function checkMathCode() {
+            const enteredCode = mathCodeInput.value;
+            if (enteredCode === CORRECT_MATH_CODE) {
+                showMessage("mathCorrect", 2000);
+                studentData.points.cognitive += 10;
+                updateDashboardPoints();
+            } else {
+                showMessage("mathIncorrect", 2000);
+            }
+        }
+
+        // --- Reading Time Screen Logic ---
+        /**
+         * Renders the Reading Time screen.
+         */
+        function renderReadingTime() {
+            document.querySelector('#readingTimeScreen h1').textContent = getText('readingTimeTitle');
+            document.querySelector('#readingTimeScreen p[data-i18n="squeakyStoryTitle"]').textContent = getText('squeakyStoryTitle');
+            document.querySelector('#readingTimeScreen p[data-i18n="squeakyStoryContent"]').textContent = getText('squeakyStoryContent');
+            document.querySelector('#readingTimeScreen p[data-i18n="squeakyQuestion"]').textContent = getText('squeakyQuestion');
+            document.querySelector('#readingOptions label:nth-child(1) span').textContent = getText('applesOption');
+            document.querySelector('#readingOptions label:nth-child(2) span').textContent = getText('nutsOption');
+            document.querySelector('#readingOptions label:nth-child(3) span').textContent = getText('playingOption');
+            document.getElementById('checkReadingAnswerBtn').textContent = getText('checkAnswerBtn');
+            document.getElementById('backFromReadingTimeBtn').textContent = getText('backToActivitiesBtn');
+
+            document.querySelectorAll('input[name="readingAnswer"]').forEach(radio => {
+                radio.checked = false;
+                radio.closest('.reading-option').classList.remove('selected');
+            });
+            checkReadingAnswerBtn.disabled = false;
+        }
+
+        /**
+         * Handles selection of a reading answer option.
+         */
+        readingOptions.addEventListener('change', (event) => {
+            document.querySelectorAll('.reading-option').forEach(label => {
+                label.classList.remove('selected');
+            });
+            if (event.target.checked) {
+                event.target.closest('.reading-option').classList.add('selected');
+            }
+        });
+
+        /**
+         * Checks the selected reading comprehension answer.
+         */
+        function checkReadingAnswer() {
+            const selectedAnswer = document.querySelector('input[name="readingAnswer"]:checked');
+            if (!selectedAnswer) {
+                showMessage("readingNoSelection", 2000);
+                return;
+            }
+
+            if (selectedAnswer.value === READING_CORRECT_ANSWER) {
+                showMessage("readingCorrect", 2000);
+                studentData.points.cognitive += 10;
+                updateDashboardPoints();
+                checkReadingAnswerBtn.disabled = true;
+            } else {
+                showMessage("readingIncorrect", 2000);
+            }
+        }
+
+        // --- Creative Writing Screen Logic ---
+        /**
+         * Renders the Creative Writing screen.
+         */
+        function renderCreativeWriting() {
+            creativeWritingTextarea.value = ''; // Clear previous writing
+            const shuffledWords = WORDS_FOR_WRITING.sort(() => 0.5 - Math.random());
+            const selectedWords = shuffledWords.slice(0, NUM_WORDS_TO_GENERATE);
+            randomWordsDisplay.textContent = selectedWords.join(', ');
+            finishWritingBtn.disabled = false; // Enable button
+
+            document.querySelector('#creativeWritingScreen h1').textContent = getText('creativeWritingTitle');
+            document.querySelector('#creativeWritingScreen p[data-i18n="creativeWritingPrompt"]').textContent = getText('creativeWritingPrompt');
+            creativeWritingTextarea.placeholder = getText('creativeWritingPlaceholder');
+            document.getElementById('finishWritingBtn').textContent = getText('finishWritingBtn');
+            document.getElementById('backFromCreativeWritingBtn').textContent = getText('backToActivitiesBtn');
+        }
+
+        /**
+         * Handles finishing the creative writing activity.
+         */
+        function finishWriting() {
+            const story = creativeWritingTextarea.value.trim();
+            if (story.split(/\s+/).filter(word => word.length > 0).length < 10) {
+                showMessage("writingTooShort", 2000);
+                return;
+            }
+            console.log("Student's Story:\n", story);
+            showMessage("writingSuccess", 2000);
+            studentData.points.creative += 15;
+            updateDashboardPoints();
+            finishWritingBtn.disabled = true;
+        }
+
+        // --- Science Experiment Screen Logic ---
+        /**
+         * Renders the Science Experiment screen.
+         */
+        function renderScienceExperiment() {
+            observationTextarea.value = ''; // Clear previous observation
+            submitObservationBtn.disabled = false; // Enable button
+
+            document.querySelector('#scienceExperimentScreen h1').textContent = getText('scienceExperimentTitle');
+            document.querySelector('#scienceExperimentScreen p[data-i18n="scienceExperimentName"]').textContent = getText('scienceExperimentName');
+            document.querySelector('#scienceExperimentScreen p[data-i18n="scienceExperimentDesc"]').textContent = getText('scienceExperimentDesc');
+            document.querySelector('#scienceExperimentScreen label[data-i18n="yourObservation"]').textContent = getText('yourObservation');
+            observationTextarea.placeholder = getText('observationPlaceholder');
+            document.getElementById('submitObservationBtn').textContent = getText('submitObservationBtn');
+            document.getElementById('backFromScienceExperimentBtn').textContent = getText('backToActivitiesBtn');
+        }
+
+        /**
+         * Handles submitting the observation for the science experiment.
+         */
+        function submitObservation() {
+            const observation = observationTextarea.value.trim();
+            if (observation.length < 20) {
+                showMessage("observationTooShort", 2000);
+                return;
+            }
+            console.log("Student's Observation:\n", observation);
+            showMessage("observationSuccess", 2000);
+            studentData.points.cognitive += 10;
+            updateDashboardPoints();
+            submitObservationBtn.disabled = true;
+        }
+
+        // --- Memory Challenge Screen Logic ---
+        /**
+         * Renders the Memory Challenge screen and loads the first question.
+         */
+        function renderMemoryChallenge() {
+            currentMemoryChallengeIndex = 0; // Reset for a fresh start
+            loadMemoryQuestion(currentMemoryChallengeIndex);
+
+            document.querySelector('#memoryChallengeScreen h1').textContent = getText('memoryChallengeTitle');
+            document.querySelector('#memoryChallengeScreen p[data-i18n="memoryFactPrompt"]').textContent = getText('memoryFactPrompt');
+            document.getElementById('nextMemoryChallengeBtn').textContent = getText('nextChallengeBtn');
+            document.getElementById('backFromMemoryChallengeBtn').textContent = getText('backToActivitiesBtn');
+        }
+
+        /**
+         * Loads a specific memory challenge question.
+         * @param {number} index - The index of the question to load.
+         */
+        function loadMemoryQuestion(index) {
+            const question = MEMORY_CHALLENGE_QUESTIONS[index];
+            if (!question) {
+                showMessage("memoryAllDone", 3000);
+                studentData.points.cognitive += 20;
+                updateDashboardPoints();
+                showScreen(activityScreen);
+                return;
+            }
+
+            memoryFactDisplay.textContent = getText(question.factKey); // Get translated fact
+            memoryOptionsContainer.innerHTML = ''; // Clear previous options
+
+            const shuffledOptions = question.options.sort(() => 0.5 - Math.random());
+
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'memory-option-btn';
+                btn.textContent = option;
+                btn.dataset.answer = option;
+                btn.addEventListener('click', handleMemoryAnswer);
+                memoryOptionsContainer.appendChild(btn);
+            });
+            nextMemoryChallengeBtn.style.display = 'none';
+        }
+
+        /**
+         * Handles clicking an answer in the memory challenge.
+         * @param {Event} event - The click event.
+         */
+        function handleMemoryAnswer(event) {
+            const selectedBtn = event.target;
+            const correctAnswer = MEMORY_CHALLENGE_QUESTIONS[currentMemoryChallengeIndex].correctAnswer;
+            
+            document.querySelectorAll('.memory-option-btn').forEach(btn => {
+                btn.disabled = true;
+                if (btn.dataset.answer === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn === selectedBtn) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (selectedBtn.dataset.answer === correctAnswer) {
+                showMessage("memoryCorrect", 2000);
+                studentData.points.cognitive += 5;
+                updateDashboardPoints();
+            } else {
+                showMessage("memoryIncorrect", 2000);
+            }
+            nextMemoryChallengeBtn.style.display = 'block';
+        }
+
+        /**
+         * Loads the next memory challenge question.
+         */
+        function nextMemoryChallenge() {
+            currentMemoryChallengeIndex++;
+            loadMemoryQuestion(currentMemoryChallengeIndex);
+        }
+
+        // --- Time Travel Quiz Screen Logic ---
+        /**
+         * Renders the Time Travel Quiz screen and loads the first question.
+         */
+        function renderTimeTravelQuiz() {
+            currentQuizQuestionIndex = 0;
+            quizScore = 0;
+            loadQuizQuestion(currentQuizQuestionIndex);
+            nextQuizQuestionBtn.style.display = 'block';
+            finishQuizBtn.style.display = 'none';
+
+            document.querySelector('#timeTravelQuizScreen h1').textContent = getText('timeTravelQuizTitle');
+            document.getElementById('nextQuizQuestionBtn').textContent = getText('nextQuestionBtn');
+            document.getElementById('finishQuizBtn').textContent = getText('finishQuizBtn');
+            document.getElementById('backFromTimeTravelQuizBtn').textContent = getText('backToActivitiesBtn');
+        }
+
+        /**
+         * Loads a specific quiz question.
+         * @param {number} index - The index of the question to load.
+         */
+        function loadQuizQuestion(index) {
+            const question = TIME_TRAVEL_QUIZ_QUESTIONS[index];
+            if (!question) {
+                showMessage("quizComplete", 3000, quizScore, TIME_TRAVEL_QUIZ_QUESTIONS.length);
+                studentData.points.cognitive += quizScore * 5;
+                updateDashboardPoints();
+                showScreen(activityScreen);
+                return;
+            }
+
+            quizQuestionNumber.textContent = getText('quizQuestionOf', index + 1, TIME_TRAVEL_QUIZ_QUESTIONS.length);
+            quizQuestionText.textContent = getText(question.questionKey); // Get translated question
+            quizOptionsContainer.innerHTML = '';
+
+            const shuffledOptions = question.options.sort(() => 0.5 - Math.random());
+
+            shuffledOptions.forEach(option => {
+                const label = document.createElement('label');
+                label.className = 'quiz-option';
+                label.innerHTML = `
+                    <input type="radio" name="quizAnswer" value="${option}"> <span class="option-text">${option}</span>
+                `;
+                label.addEventListener('click', () => {
+                    document.querySelectorAll('.quiz-option').forEach(optLabel => optLabel.classList.remove('selected'));
+                    label.classList.add('selected');
+                });
+                quizOptionsContainer.appendChild(label);
+            });
+
+            document.querySelectorAll('input[name="quizAnswer"]').forEach(radio => radio.disabled = false);
+            nextQuizQuestionBtn.disabled = false;
+        }
+
+        /**
+         * Checks the selected quiz answer.
+         */
+        function checkQuizAnswer() {
+            const selectedAnswerInput = document.querySelector('input[name="quizAnswer"]:checked');
+            if (!selectedAnswerInput) {
+                showMessage("quizNoSelection", 2000);
+                return;
+            }
+
+            const selectedAnswer = selectedAnswerInput.value;
+            const correctAnswer = TIME_TRAVEL_QUIZ_QUESTIONS[currentQuizQuestionIndex].correctAnswer;
+
+            document.querySelectorAll('input[name="quizAnswer"]').forEach(radio => {
+                radio.disabled = true;
+                const label = radio.closest('.quiz-option');
+                if (radio.value === correctAnswer) {
+                    label.classList.add('correct');
+                } else if (radio.checked) {
+                    label.classList.add('incorrect');
+                }
+            });
+            nextQuizQuestionBtn.disabled = true;
+
+            if (selectedAnswer === correctAnswer) {
+                showMessage("quizCorrect", 1500);
+                quizScore++;
+            } else {
+                showMessage("quizIncorrect", 1500, correctAnswer);
+            }
+
+            setTimeout(() => {
+                nextQuizQuestion();
+            }, 1500);
+        }
+
+        /**
+         * Moves to the next quiz question or finishes the quiz.
+         */
+        function nextQuizQuestion() {
+            currentQuizQuestionIndex++;
+            if (currentQuizQuestionIndex < TIME_TRAVEL_QUIZ_QUESTIONS.length) {
+                loadQuizQuestion(currentQuizQuestionIndex);
+                if (currentQuizQuestionIndex === TIME_TRAVEL_QUIZ_QUESTIONS.length - 1) {
+                    nextQuizQuestionBtn.style.display = 'none';
+                    finishQuizBtn.style.display = 'block';
+                }
+            } else {
+                loadQuizQuestion(currentQuizQuestionIndex);
+            }
+        }
+
+
+        // --- Event Listeners ---
+
+        languageSwitcher.addEventListener('click', (event) => {
+            const targetFlag = event.target.closest('img');
+            if (targetFlag && targetFlag.dataset.lang) {
+                setLanguage(targetFlag.dataset.lang);
+            }
+        });
+
+        // Login Screen
+        classSelection.addEventListener('click', handleClassSelection);
+        loginBtn.addEventListener('click', handleLogin);
+
+        // Dashboard Screen
+        earnQuickPointsBtn.addEventListener('click', earnQuickPoints);
+        goToActivitiesBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+        logPhysicalActivityBtn.addEventListener('click', logPhysicalActivity);
+        visitStoreBtn.addEventListener('click', () => {
+            renderStore();
+            showScreen(storeScreen);
+        });
+
+        // Store Screen
+        backToDashboardBtn.addEventListener('click', () => {
+            updateDashboardPoints();
+            showScreen(dashboardScreen);
+        });
+
+        // Activity Screen
+        backFromActivitiesBtn.addEventListener('click', () => {
+            showScreen(dashboardScreen);
+        });
+
+        // Math Puzzle Screen
+        checkMathCodeBtn.addEventListener('click', checkMathCode);
+        backFromMathPuzzleBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+        mathCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkMathCode();
+            }
+        });
+
+        // Reading Time Screen
+        checkReadingAnswerBtn.addEventListener('click', checkReadingAnswer);
+        backFromReadingTimeBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+
+        // Creative Writing Screen
+        finishWritingBtn.addEventListener('click', finishWriting);
+        backFromCreativeWritingBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+
+        // Science Experiment Screen
+        submitObservationBtn.addEventListener('click', submitObservation);
+        backFromScienceExperimentBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+
+        // Memory Challenge Screen
+        nextMemoryChallengeBtn.addEventListener('click', nextMemoryChallenge);
+        backFromMemoryChallengeBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+
+        // Time Travel Quiz Screen
+        nextQuizQuestionBtn.addEventListener('click', checkQuizAnswer);
+        finishQuizBtn.addEventListener('click', checkQuizAnswer);
+        backFromTimeTravelQuizBtn.addEventListener('click', () => {
+            renderActivities();
+            showScreen(activityScreen);
+        });
+
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(studentData.currentLang); // Set initial language and highlight first flag
+            showScreen(loginScreen);
+            renderFruitGrid();
+        });
+
+    </script>
+</body>
+</html>
