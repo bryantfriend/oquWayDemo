@@ -19,7 +19,7 @@
             min-height: 100vh;
             margin: 0;
             color: #333;
-            overflow: hidden; /* Prevent scrollbars */
+            overflow: hidden; /* Prevent body scrollbars, scrolling will be handled by the container */
         }
 
         .container {
@@ -33,11 +33,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 70vh; /* Minimum height to occupy a good portion of the screen */
+            justify-content: flex-start; /* Align content to the top */
             position: relative;
-            overflow: hidden;
             border: 5px solid #8e44ad; /* Purple border for a playful touch */
+            max-height: 90vh; /* Set a max height */
+            overflow-y: auto; /* Allow vertical scrolling WITHIN the container */
         }
 
         h1, h2 {
@@ -47,12 +47,13 @@
         }
 
         .screen {
-            width: 125%;
-            height: 125%;
+            width: 100%;
+            min-height: 100%; /* Ensure screen takes up at least the container height */
             display: none; /* Hidden by default, managed by JS */
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding-bottom: 2rem; /* Add padding at the bottom to avoid content sticking to the edge */
         }
 
         .screen.active {
@@ -425,6 +426,7 @@
             transition: background-color 0.3s ease;
             border: none;
             box-shadow: 0 3px 10px rgba(149, 165, 166, 0.3);
+            margin-top: auto; /* Push back buttons to the bottom */
         }
         .back-btn:hover {
             background-color: #7f8c8d;
@@ -609,7 +611,11 @@
         @media (max-width: 768px) {
             .container {
                 padding: 1.5rem;
-                min-height: 90vh;
+                max-height: 95vh; /* Allow more height on smaller screens */
+                width: 95vw;
+            }
+            .screen {
+                padding-bottom: 1.5rem;
             }
             h1 {
                 font-size: 2rem;
@@ -715,7 +721,7 @@
                 top: 10px;
                 right: 10px;
             }
-            .language-switcher img {
+             .language-switcher img {
                 width: 30px;
                 height: 20px;
             }
@@ -726,9 +732,9 @@
     <div class="container">
         <!-- Language Switcher with Flags -->
         <div class="language-switcher" id="languageSwitcher">
-            <img src="https://flagcdn.com/us.svg" alt="English Flag" data-lang="en" class="selected">
-            <img src="https://flagcdn.com/ru.svg" alt="Russian Flag" data-lang="ru">
-            <img src="https://flagcdn.com/kg.svg" alt="Kyrgyz Flag" data-lang="kg">
+            <img src="https://flagcdn.com/us.svg" alt="English Flag" data-lang="en" class="selected" onerror="this.onerror=null;this.src='https://placehold.co/40x30/CCCCCC/000000?text=US';">
+            <img src="https://flagcdn.com/ru.svg" alt="Russian Flag" data-lang="ru" onerror="this.onerror=null;this.src='https://placehold.co/40x30/CCCCCC/000000?text=RU';">
+            <img src="https://flagcdn.com/kg.svg" alt="Kyrgyz Flag" data-lang="kg" onerror="this.onerror=null;this.src='https://placehold.co/40x30/CCCCCC/000000?text=KG';">
         </div>
 
         <!-- Message Box -->
